@@ -5,7 +5,7 @@ import numpy as np
 import math
 
 
-def shoulder(seq, slope, direction="descending"):
+def shoulder(seq, target_slope, direction="descending", plot_it=False):
     if seq:
         if isinstance(seq, np.ndarray):
             y = seq
@@ -18,19 +18,35 @@ def shoulder(seq, slope, direction="descending"):
         f = np.poly1d(z)
 
         # calculate new x's and y's
-        x_new = np.linspace(x[0], x[-1], 5*len(y))
+        x_new = np.linspace(x[0], x[-1], 1*len(y))
 
-        if direction == "descending":
-            max_ror = 90
-            for i in range(len(x_new) - 1):
-                ror = (f(x_new[i]+1)-f(x_new[i])) / (x_new[i+1]-x_new[i])
-                slope = max(0, math.degrees(math.atan(ror)))
-                print(x_new[i], 'ror', ror, 'slope', slope)
+        previous_slope = 0 if direction == "descending" else 90
+        #
+        # initially for direction == "descending" we ignore all loop
+        # iterations for which the slope increases. Once it starts to
+        # fall we find the point where the slope exceeds the target
+        #
+        for i in range(len(x_new) - 1):
+            rise = f(x_new[i])-f(x_new[i+1])
+            run = x_new[i+1]-x_new[i]
+            ror =  rise / run
+            slope = max(0, math.degrees(math.atan(ror)))
+            if direction == "descending":
+                if slope:
+                    if True: #slope < previous_slope:
+                        print(x_new[i], 'rise', rise, 'run', run, 'ror', ror, 'slope', slope)
+                        if slope < target_slope:
+                            # project back the position on the original x axis
+                            v = (x_new[i]+x_new[i+1])/2
+                            print('v', v)
+                            break
+                previous_slope = slope
 
-        import matplotlib.pyplot as plt
-        y_new = f(x_new)
-        plt.plot(x,y,'o', x_new, y_new)
-        plt.show()
+        if plot_it:
+            import matplotlib.pyplot as plt
+            y_new = f(x_new)
+            plt.plot(x,y,'o', x_new, y_new)
+            plt.show()
 
 
 
@@ -41,4 +57,4 @@ def shoulder(seq, slope, direction="descending"):
 
 if __name__ == '__main__':
     seq = [110, 103, 98, 85, 86, 33, 24, 19, 13, 11, 6, 3, 2, 1]
-    shoulder(seq, 45)
+    shoulder(seq, 82, plot_it=True)
