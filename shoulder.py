@@ -26,21 +26,19 @@ def shoulder(seq, target_slope, direction="descending", plot_it=False):
         # iterations for which the slope increases. Once it starts to
         # fall we find the point where the slope exceeds the target
         #
+        p = f(x_new[0])-f(x_new[1])
+        deltas = []
         for i in range(len(x_new) - 1):
             rise = f(x_new[i])-f(x_new[i+1])
-            run = x_new[i+1]-x_new[i]
-            ror =  rise / run
-            slope = max(0, math.degrees(math.atan(ror)))
             if direction == "descending":
-                if slope:
-                    if True: #slope < previous_slope:
-                        print(x_new[i], 'rise', rise, 'run', run, 'ror', ror, 'slope', slope)
-                        if slope < target_slope:
-                            # project back the position on the original x axis
-                            v = (x_new[i]+x_new[i+1])/2
-                            print('v', v)
-                            break
-                previous_slope = slope
+                print(x_new[i], 'rise', rise)
+                if rise < p:
+                    deltas.append((x_new[i], p-rise))
+                p = rise
+
+        # find max of delta list
+        j = sorted(deltas, key=lambda x: x[1], reverse=True)[0][0] + 1
+        print(j)
 
         if plot_it:
             import matplotlib.pyplot as plt
