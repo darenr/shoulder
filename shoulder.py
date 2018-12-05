@@ -28,6 +28,7 @@ def shoulder(seq, target_slope, direction="descending", plot_it=False):
         #
         p = f(x_new[0])-f(x_new[1])
         deltas = []
+        # use maxheap to store the deltas
         for i in range(len(x_new) - 1):
             rise = f(x_new[i])-f(x_new[i+1])
             if direction == "descending":
